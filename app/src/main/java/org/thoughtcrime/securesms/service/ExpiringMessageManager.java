@@ -7,6 +7,7 @@ import org.thoughtcrime.securesms.database.DatabaseFactory;
 import org.thoughtcrime.securesms.database.MmsDatabase;
 import org.thoughtcrime.securesms.database.SmsDatabase;
 import org.thoughtcrime.securesms.database.model.MessageRecord;
+import org.thoughtcrime.securesms.util.TextSecurePreferences;
 
 import java.util.Comparator;
 import java.util.TreeSet;
@@ -34,10 +35,14 @@ public class ExpiringMessageManager {
   }
 
   public void scheduleDeletion(long id, boolean mms, long expiresInMillis) {
-    scheduleDeletion(id, mms, System.currentTimeMillis(), expiresInMillis);
+    if (TextSecurePreferences.isMessageExpirationEnabled(context))
+      scheduleDeletion(id, mms, System.currentTimeMillis(), expiresInMillis);
   }
 
   public void scheduleDeletion(long id, boolean mms, long startedAtTimestamp, long expiresInMillis) {
+    if (! TextSecurePreferences.isMessageExpirationEnabled(context))
+      return;
+
     long expiresAtMillis = startedAtTimestamp + expiresInMillis;
 
     synchronized (expiringMessageReferences) {
@@ -82,6 +87,7 @@ public class ExpiringMessageManager {
       while (true) {
         ExpiringMessageReference expiredMessage = null;
 
+        boolean isMessageExpirationEnabled = TextSecurePreferences.isMessageExpirationEnabled(context);
         synchronized (expiringMessageReferences) {
           try {
             while (expiringMessageReferences.isEmpty()) expiringMessageReferences.wait();
@@ -93,7 +99,7 @@ public class ExpiringMessageManager {
               ExpirationListener.setAlarm(context, waitTime);
               expiringMessageReferences.wait(waitTime);
             } else {
-              expiredMessage = nextReference;
+              if (isMessageExpirationEnabled) expiredMessage = nextReference;
               expiringMessageReferences.remove(nextReference);
             }
 

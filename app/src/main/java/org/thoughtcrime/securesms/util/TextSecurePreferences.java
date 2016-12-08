@@ -68,6 +68,7 @@ public class TextSecurePreferences {
   public  static final String PASSPHRASE_TIMEOUT_INTERVAL_PREF = "pref_timeout_interval";
   public  static final String PASSPHRASE_TIMEOUT_PREF          = "pref_timeout_passphrase";
   public  static final String SCREEN_SECURITY_PREF             = "pref_screen_security";
+  public  static final String MESSAGE_EXPIRATION_PREF          = "pref_allow_expiration";
   private static final String ENTER_SENDS_PREF                 = "pref_enter_sends";
   private static final String ENTER_PRESENT_PREF               = "pref_enter_key";
   private static final String SMS_DELIVERY_REPORT_PREF         = "pref_delivery_report_sms";
@@ -824,8 +825,13 @@ public class TextSecurePreferences {
     setStringPreference(context, IDENTITY_PREF, identityUri);
   }
 
+
   public static void setScreenSecurityEnabled(Context context, boolean value) {
     setBooleanPreference(context, SCREEN_SECURITY_PREF, value);
+  }
+
+  public static boolean isMessageExpirationEnabled(Context context) {
+    return getBooleanPreference(context, MESSAGE_EXPIRATION_PREF, true);
   }
 
   public static boolean isScreenSecurityEnabled(Context context) {
